@@ -1,0 +1,561 @@
+<style type="text/css">
+
+    html, body {
+    
+        margin: 0;
+    
+        padding: 0;
+    
+        display:flex;
+
+        min-height: 100vh;
+
+        flex-direction:column;
+
+        text-align:center;
+    
+    }
+    
+    body {
+        background-color:white;
+    }
+    
+    #header {
+        text-align:left;
+        padding-left:5vh;
+        position:relative;
+    }
+    
+    
+    
+    #content {
+        flex:1;
+    }
+
+    #main {
+        background-color:#FFA500;
+        padding:3vh;
+        margin:3vh;
+        border-radius: 30px;
+        cursor:pointer;
+    }
+    
+    .button{
+        border-radius: 10px 0px 10px 0px;
+    }
+    
+    #footer {
+    
+        background: white;
+    }
+
+    h3{
+        display:inline-block;
+    }
+
+    .subject{
+        display:inline-block;
+    }
+
+    .drawing{
+        display:inline-block;
+        position:absolute;
+        top:0;
+        right:0;
+        padding:5vh;
+    }
+
+    #showHide {
+        display:none;
+    }
+
+    .first{
+        width:40%;
+        height:65vh;
+        background-size: cover;
+        background-repeat: none;
+        background-image: url('https://images.unsplash.com/photo-1572686279535-3da8ef858512?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=675&q=80');
+        display:inline-block;
+    }
+
+    .second{
+        width:40%;
+        height:65vh;
+        background-size: cover;
+        background-repeat: none;
+        background-image: url('https://lh3.googleusercontent.com/proxy/XdlHS-qSZ7XasDEP-SmY7qdU1pfzHeWG_yehD159MVJ186HdKKeUXm7eqxU8WInZXrrDX74G9eqMKF4jeJNzuFNeb_ZTgjM-Xs8cMRY_FUUmOEVeEJipin7DpPFrHlsV-OgbRa485QZgc87jPVVgYvwc7BGUxgtuzdRnpke0Q8SL1ezeNxudKW1enUdbhwk3k2DG1tllFWzDxvA-6Zvuzfx3yIBfiFV0yUPE4-FBONj9KVZX5o_uevxft5yRG39_lmx6U0e6cmFC8OfOdD7pCT6wBAtbGJyMbnwfZws4lt8mvTSrHV4Kfi1YjAfRDh_bmg');
+        display:inline-block;
+        margin-left:5vh;
+    }
+
+    .imgwrap{
+        text-align:center;
+    }
+
+    .container { padding: 2em; }
+  .center.aligned { text-align: center; }
+  canvas {
+    display: block;
+    background: #59ABE3;
+    margin: 0 auto;
+  }
+  a.key {
+    border: 1px solid #ccc;
+    padding: 0 5px;
+    display: inline-block;
+    margin: 3px 2px;
+    background: #e3e3e3;
+    border-radius: 4px;
+  }
+    
+    </style>
+    
+    <script>
+        function showHide(){
+            if(document.getElementById("showHide").style.display =='none'){
+                document.getElementById("showHide").style.display ='block';
+            }
+            else{
+                document.getElementById("showHide").style.display ='none';
+            }
+        }
+    </script>
+    
+    
+    <div id="header">
+        <h1 class="subject">git flow 연습&#128150;</h1>
+        <div class="drawing">
+            그림그리기 <a href="canvas.html">&#9999;&#65039;</a> <!--그림판-->
+        </div>
+    </div>
+
+
+    <div id="content">
+    
+        <div id="main" onClick="showHide();">
+            클릭하세요. (내 페이지 보기)
+            <div id="showHide">
+                <a href="">내 페이지 링크</a> html 링크 연결~
+            </div>
+        </div>
+
+        <canvas id="pingpong" width="650" height="480"></canvas>
+        
+        <p>게임방법 : 숫자로 선택 후 솔플은 k, m 키로, 2p는 a, z / k, m 키로 대결한다.</p>
+
+        <script>
+            function Game(canvasId){
+              this.game = this;
+              this.id = canvasId;
+              this.canvas = document.getElementById(this.id);
+              this.context = this.canvas.getContext('2d');
+              
+              this.width = 0;
+              this.height = 0;
+              
+              setTimeout(function(){
+                // document loaded
+                document.addEventListener('keydown', this.game.fireKeydown);
+                document.addEventListener('keyup', this.game.fireKeyup);
+              }, 50);
+              
+              this.timer = setInterval(function(){
+                game.tick();
+              }, 10);
+              
+              // block spacebar to page down
+              window.onkeydown = function(e) { 
+                return !(e.keyCode == 32);
+              };
+              
+              function intersects(circle, rect){
+                  var circleDistance = {};
+                  circleDistance.x = Math.abs(circle.x - rect.left);
+                  circleDistance.y = Math.abs(circle.y - rect.top);
+              
+                  if (circleDistance.x > (rect.width/2 + circle.rad)) { return false; }
+                  if (circleDistance.y > (rect.height/2 + circle.rad)) { return false; }
+              
+                  if (circleDistance.x <= (rect.width/2)) { return true; } 
+                  if (circleDistance.y <= (rect.height/2)) { return true; }
+              
+                  var cornerDistance_sq = Math.pow(circleDistance.x - rect.width/2, 2) +
+                                          Math.pow(circleDistance.y - rect.height/2, 2);
+              
+                  return (cornerDistance_sq <= Math.pow(circle.r, 2));
+              }
+              
+              function Ball(boundWidth, boundHeight){
+                this.x = Math.random()*(boundWidth/5) + (2*boundWidth/5);
+                this.y = Math.random()*(boundHeight/2) + (boundHeight/4);
+                this.dx = Math.random() > 0.5 ? -1 : 1;
+                this.dy = Math.random() > 0.5 ? -1 : 1;
+                this.rad = 10;
+                this.color = "#fff";
+                this.speed = 2;
+                
+                this.set = function(newX, newY){
+                  this.x = newX;
+                  this.y = newY;
+                };
+                
+                this.setD = function(_dx, _dy){
+                  this.dx = _dx;
+                  this.dy = _dy;
+                };
+                
+                this.randomDirection = function(){
+                  this.dx = Math.random() > 0.5 ? -1 : 1;
+                  this.dy = Math.random() > 0.5 ? -1 : 1;
+                };
+                
+                this.update = function(){
+                  var nextX = this.x + this.dx;
+                  var nextY = this.y + this.dy;
+                  if(nextX < this.rad || nextX > boundWidth - this.rad){
+                    this.dx *= -1;
+                  }
+                  if(nextY < this.rad || nextY > boundHeight - this.rad){
+                    this.dy *= -1;
+                  }
+                  this.x += this.dx * this.speed;
+                  this.y += this.dy * this.speed;
+                };
+                
+                this.draw = function(context){
+                  var oldStyle = context.fillStyle;
+                  context.beginPath();
+                  context.fillStyle = this.color;
+                  context.arc(this.x, this.y, this.rad, 0, Math.PI * 2, true);
+                  context.closePath();
+                  context.fill();
+                  context.fillStyle = oldStyle;
+                };
+                
+                this.collide = function(racket){
+                  if( ! racket ) return false;
+                  var rect= {
+                    left: racket.x,
+                    top: racket.y,
+                    width: racket.width,
+                    height: racket.height
+                  };
+                  
+                  if( intersects(this, rect) ){
+                    var incidencePercent = 2 * (this.y - rect.top) / rect.height;
+                    this.dx *= -1;
+                    this.dy += incidencePercent;
+                    this.dy = Math.min(this.dy, 2);
+                    this.dy = Math.max(this.dy, -2);
+                    return true;
+                  } else {
+                    return false;
+                  }
+                };
+              }
+              
+              function Racket(x, size, color, boundHeight){
+                this.x = x;
+                this.y = boundHeight / 2;
+                this.width = 10;
+                this.height = size;
+                this.left = this.x - this.width/2;
+                this.right = this.x + this.width/2;
+                this.dy = 0;
+                this.direction = 0;
+                this.draw = function(context){
+                  context.fillStyle = color;
+                  context.fillRect(this.left, this.y - this.height/2, this.width, this.height);
+                };
+                this.accelate = function(dy){
+                  this.dy += dy;
+                };
+                this.call = 0;
+                this.update = function(){
+                  // going to zero
+                  if(++this.call % 10 == 0){
+                    // per 10 times becuase be slowing is too fast
+                    this.dy *= 0.7;
+                    this.call = 0;
+                  }
+                  if(Math.abs(this.dy) < 1e-10) this.dy = 0;
+                  
+                  this.y = this.y + (this.dy / 10);
+                  if(this.y - this.height/2 < 0 || this.y + this.height/2 > boundHeight){
+                    this.y = Math.max(this.y, this.height/2);
+                    this.y = Math.min(this.y, boundHeight - this.height/2);
+                    this.dy = 0;
+                  }
+                };
+              }
+              
+              this.init = function(stageName){
+                this.stage = stageName;
+                if( ! this.balls ) this.balls = [];
+                this.racket1 = this.racket2 = null;
+              };
+              
+              this.state = function(stageName){
+                var width = this.context.canvas.width;
+                var height = this.context.canvas.height;
+                this.init(stageName);
+                if(stageName == 'PLAY_SOLO' || stageName == 'PLAY_DUO'){
+                  this.balls = [];
+                  this.racket1_score = 0;
+                  this.racket2_score = 0;
+                  this.racket1 = new Racket(1*width/10, height/5, '#fff', height);
+                  this.racket2 = new Racket(9*width/10, height/5, '#fff', height);
+                  this.pushBall(1, '#fff');
+                } else if(stageName == 'GAME_OVER'){
+                  this.balls = [];
+                }
+              };
+              
+              this.draw = function(context){
+                var width = context.canvas.width;
+                var height = context.canvas.height;
+                context.clearRect(0, 0, width, height);
+                
+                for(var i in this.balls){
+                  this.balls[i].draw(context);
+                }
+                
+                var defaultColor = '#FFFFFF';
+            
+                context.font = "40px Comic Sans MS";
+                context.fillStyle = defaultColor;
+                context.textAlign = "center";
+                if( this.stage == 'MAIN_MENU'){
+                  context.fillText("PING PONG", width/2, height/4);
+                  context.fillText("1. play with computer", width/2, 2*height/4);
+                  context.fillText("2. play with 2 player", width/2, 3*height/4);
+                }
+                else if( this.stage == 'SELECT_COMPUTER'){
+                  context.fillText("COMPUTER LEVEL", width/2, height/6);
+                  context.fillText("1. easy", width/2, 2*height/6);
+                  context.fillText("2. medium", width/2, 3*height/6);
+                  context.fillText("3. hard", width/2, 4*height/6);
+                  context.fillText("ESC. back", width/2, 5*height/6);
+                }
+                else if( this.stage == 'GAME_OVER' ){ 
+                  context.fillStyle = "rgba(255, 255, 255, 0.5)";
+                  context.textAlign = "center";
+                  context.font = "100px Comic Sans MS";
+                  context.fillText(this.racket1_score, width/4, height/2 + 40);
+                  context.fillText(this.racket2_score, 3*width/4, height/2 + 40);
+                  
+                  context.font = "40px Comic Sans MS";
+                  context.fillStyle = defaultColor;
+                  context.fillText("GAME OVER", width/2, height/3-60);
+                  context.fillStyle = '#F7CA18';
+                  context.fillText(this.game_result_text, width/2, height/3);
+                  context.fillStyle = defaultColor;
+                  context.fillText("press SPACE to back", width/2, 4*height/5);
+                }
+                else if( this.stage == 'PLAY_SOLO' || this.stage == 'PLAY_DUO' ){
+                  context.strokeStyle = "rgba(255, 255, 255, 0.5)";
+                  context.beginPath();
+                  context.moveTo(width/2, 0);
+                  context.lineTo(width/2, height);
+                  context.stroke();
+                  context.closePath();
+                  
+                  context.fillStyle = "rgba(255, 255, 255, 0.5)";
+                  context.textAlign = "center";
+                  context.font = "100px Comic Sans MS";
+                  context.fillText(this.racket1_score, width/4, height/2 + 40);
+                  context.fillText(this.racket2_score, 3*width/4, height/2 + 40);
+                  context.font = "40px Comic Sans MS";
+                  var hud = {
+                    'PLAY_SOLO': ['COM', 'YOU'],
+                    'PLAY_DUO' : ['PLAYER1', 'PLAYER2']
+                  };
+                  for(var i in hud){
+                    context.fillText(hud[this.stage][0], 1*width/4, height/4 + 40);
+                    context.fillText(hud[this.stage][1], 3*width/4, height/4 + 40);
+                  }
+                  
+                  this.racket1.draw(context);
+                  this.racket2.draw(context);
+                }
+              };
+              
+              this.keypress_table = {};
+              this.fireKeydown = function(event){
+                var _this = game;
+                _this.keypress_table[event.code.toString()] = true;
+            
+                if(_this.stage == 'MAIN_MENU'){
+                  switch(event.code){
+                  case 'Digit1':
+                    _this.state('SELECT_COMPUTER');
+                    break;
+                  case 'Numpad1':
+                    _this.state('SELECT_COMPUTER');
+                    break;
+                  case 'Digit2':
+                    _this.state('PLAY_DUO');
+                    break;
+                  case 'Numpad2':
+                    _this.state('PLAY_DUO');
+                    break;
+                  }
+                }
+                else if(_this.stage == 'GAME_OVER'){
+                  switch(event.code){
+                  case 'Space':
+                    _this.state('MAIN_MENU');
+                    _this.start();
+                    break;
+                  }
+                }
+                else if(_this.stage == 'SELECT_COMPUTER'){
+                  switch(event.key){
+                  case '1':
+                    _this.computer_level = 1;
+                    _this.state('PLAY_SOLO');
+                    break;
+                  case '2':
+                    _this.computer_level = 2;
+                    _this.state('PLAY_SOLO');
+                    break;
+                  case '3':
+                    _this.computer_level = 3;
+                    _this.state('PLAY_SOLO');
+                    break;
+                  case 'Escape':
+                    _this.state('MAIN_MENU');
+                    break;
+                  }
+                }
+              }
+              this.fireKeyup = function(event){
+                game.keypress_table[event.code.toString()] = false;
+              }
+              
+              this.update = function(){
+                if(this.stage == 'PLAY_SOLO' || this.stage == 'PLAY_DUO'){
+                  if(this.stage == 'PLAY_DUO'){
+                    if(this.keypress_table['KeyA']) if(this.racket1) this.racket1.accelate(-5);
+                    if(this.keypress_table['KeyZ']) if(this.racket1) this.racket1.accelate(+5);
+                  }
+                  if(this.keypress_table['KeyK']) if(this.racket2) this.racket2.accelate(-5);
+                  if(this.keypress_table['KeyM']) if(this.racket2) this.racket2.accelate(+5);
+                  
+                  if(this.stage == 'PLAY_SOLO' && this.racket1){
+                    var accuracy = parseInt(this.computer_level || 1)-1;
+                    var isDiffrentPosition = this.balls && this.racket1.y != this.balls[0];
+                    if(Math.random() < [0.3, 0.5, 0.9][accuracy] && isDiffrentPosition) this.racket1.accelate(5 * (this.balls[0].y < this.racket1.y ? -1 : 1));
+                    
+                    var tickSometime = Math.random() < 0.1;
+                    if(tickSometime){
+                      if(this.racket1.y <= this.racket1.height/2 + 10) this.racket1.accelate(+40);
+                      if(this.racket1.y >= this.context.canvas.height - this.racket1.height/2 - 10) this.racket1.accelate(-40);
+                    }
+                  }
+                }
+                
+                for(var i in this.balls){
+                  this.balls[i].collide(this.racket1);
+                  this.balls[i].collide(this.racket2);
+                  this.balls[i].update();
+                  
+                  if(this.racket1 && this.racket2){
+                    if(this.balls[i].x < this.racket1.left - this.racket2.width){
+                      this.scoring(0, +1);
+                      this.popAndNewBall(i);
+                    } else if(this.balls[i].x > this.racket2.right + this.racket2.width){
+                      this.scoring(+1, 0);
+                      this.popAndNewBall(i);
+                    }
+                  }
+                }
+                
+                if(this.stage == 'PLAY_SOLO' || this.stage == 'PLAY_DUO'){
+                  if(this.racket1_score > 9){
+                    if(this.stage == 'PLAY_SOLO')
+                      this.game_result_text = 'COMPUTER WIN';
+                    else if(this.stage == 'PLAY_DUO')
+                      this.game_result_text = 'PLAYER 1 WIN';
+            
+                    return 'GAME_OVER';
+                  }
+                  if(this.racket2_score > 9){
+                    if(this.stage == 'PLAY_SOLO')
+                      this.game_result_text = 'PLAYER WIN';
+                    else if(this.stage == 'PLAY_DUO')
+                      this.game_result_text = 'PLAYER 2 WIN';
+            
+                    return 'GAME_OVER';
+                  }
+                }
+                
+                if(this.racket1) this.racket1.update();
+                if(this.racket2) this.racket2.update();
+                return 'UPDATED';
+              }
+              
+              this.tick = function(){
+                if( this.update() == 'GAME_OVER' ){
+                  this.state('GAME_OVER');
+                }
+                this.draw(this.context);  
+              };
+              
+              ////////// Timer functions & attributes ///////////
+              this.timer = 0;
+              this.start = function(){
+                this.init('MAIN_MENU');
+                
+                for(var i=0; i<5; ++i){
+                  this.pushBall(Math.floor(Math.random()*5), '#' + Math.random().toString(16).substr(2, 6));
+                }
+              };
+              
+              this.stop = function(){
+                clearInterval(this.timer);
+              };
+              
+              this.pushBall = function(ball_number, color, delay){
+                if( ! delay ) delay = 0;
+                var width = this.context.canvas.width;
+                var height = this.context.canvas.height;
+                for(var i=0; i<ball_number; ++i){
+                  var ball = new Ball(width, height);
+                  ball.rad = 12;
+                  ball.color = color;
+                  ball.speed = 4;
+                  if( delay ){
+                    ball.setD(0, 0);
+                    // 1초 뒤에 움직이도록 한다.
+                    setTimeout(function(){
+                      ball.randomDirection();
+                    }, delay);
+                  }
+                  this.balls.push(ball);
+                }
+              };
+              
+              this.popAndNewBall = function(ball_index){
+                this.balls = [];
+                this.pushBall(1, '#fff', 1000);
+              };
+              
+              this.scoring = function(score1, score2){
+                this.racket1_score += score1;
+                this.racket2_score += score2;
+              };
+            }
+            
+            var game = new Game('pingpong');
+            game.start();
+            game.pushBall(1);
+            /* 출처 : https://joonas.tistory.com/12 */
+            </script>
+    </div>
+    
+    <div id="footer">
+        <h3 class="date">날짜가 출력될 자리</h3>
+        <h3 class="time">시간이 출력될 자리</h3>
+        <script src="clock.js"></script>
+    </div>
